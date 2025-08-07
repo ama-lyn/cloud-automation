@@ -52,3 +52,54 @@ app.listen(port, () => {
 });
 
 ```
+
+## Infrastructure as Code  
+### Ansible Setup
+
+This section explains how to use Ansible to automate the deployment of the Express.js app inside a Docker container.
+
+---
+
+```bash
+# Start by creating the basic Ansible folder layout
+mkdir -p ansible/roles
+
+# Define host(s) to deploy to in ansible/inventory.ini
+[webserver]
+localhost ansible_connection=local
+
+# Create ansible/deploy_app.yml with the following content
+---
+- hosts: webserver
+  become: yes
+  tasks:
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        state: started
+
+    - name: Build Docker image
+      docker_image:
+        build:
+          path: "{{ playbook_dir }}/.."
+        name: express-app
+        source: build
+        force_source: yes
+
+    - name: Run Docker container
+      docker_container:
+        name: express-app
+        image: express-app
+        state: started
+        recreate: yes
+        published_ports:
+          - "8080:8080"
+
+# This playbook performs the following:
+
+- Ensures Docker is running
+
+- Builds a Docker image named express-app
+
+- Starts (or restarts) the container, mapping port 8080 to the host
+```
