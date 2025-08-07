@@ -1,0 +1,17 @@
+name: Deploy Application
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Ansible Playbook
+        run: |
+          cd ${{ github.workspace }}
+          ansible-playbook -i ansible/inventory.ini ansible/deploy_app.yml -vv
