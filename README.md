@@ -103,3 +103,46 @@ localhost ansible_connection=local
 
 - Starts (or restarts) the container, mapping port 8080 to the host
 ```
+
+## CI/CD Pipeline  
+### GitHub Actions Setup
+
+This section sets up a GitHub Actions workflow to automatically deploy the Express.js application using Ansible whenever changes are pushed to the `main` branch.
+
+---
+
+### Create Workflow Directory
+
+Begin by creating the directory for GitHub Actions workflows:
+
+```bash
+# Begin by creating the directory for GitHub Action workflows
+mkdir -p .github/workflows
+
+# Create .github/workflows/deploy.yml with the following contents 
+name: Deploy Application
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Ansible Playbook
+        run: |
+          cd ${{ github.workspace }}
+          ansible-playbook -i ansible/inventory.ini ansible/deploy_app.yml -vv
+# This workflow does the following when code is pushed to the main branch:
+
+- Uses a self-hosted runner to run the pipeline (assumes a runner is already set up)
+
+- Checks out the code from the repository
+
+- Runs the Ansible playbook to build and deploy the Dockerized Express.js app
+
+```
